@@ -124,6 +124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+  player: {fileID: 0}
 --- !u!82 &5716673710406384559
 AudioSource:
   m_ObjectHideFlags: 0

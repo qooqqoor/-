@@ -15,11 +15,14 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject HpBar;
     [SerializeField] Text scoreText;
     private Animator anim;
-    int score;
+    public float score;
     float scoreTime;
     SpriteRenderer render;
     AudioSource deathSound;
     [SerializeField] GameObject replyButton;
+    public bool special;
+    Rigidbody2D specialBody;
+    float specialTime;
     void Start()
     {
         hp = 10;
@@ -28,6 +31,9 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
         render = GetComponent<SpriteRenderer>();
         deathSound = GetComponent<AudioSource>();
+        specialBody = GetComponent<Rigidbody2D>();
+        special = false;
+        specialTime = 0;
     }
 
     // Update is called once per frame
@@ -36,19 +42,42 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.D))
         {
             transform.Translate(moveSpeed*Time.deltaTime,0,0);
-            render.flipX = false;
-            anim.SetBool("run",true);
+            if (!special)
+            {
+                render.flipX = false;
+                anim.SetBool("run",true);
+            }
+           
         }else if(Input.GetKey(KeyCode.A))
         {
             transform.Translate(-moveSpeed*Time.deltaTime,0,0);
-            render.flipX = true;
-            anim.SetBool("run",true);
+            if (!special)
+            {
+                render.flipX = true;
+                anim.SetBool("run",true);
+            }
+           
         }else if(Input.GetKey(KeyCode.W))
         {
-            transform.Translate(0,moveSpeed*Time.deltaTime,0);
+            if (special)
+            {
+                transform.Translate(0,moveSpeed*Time.deltaTime,0);
+            }
         }else if(Input.GetKey(KeyCode.S))
         {
-            transform.Translate(0,-moveSpeed*Time.deltaTime,0);
+            if (special)
+            {
+                transform.Translate(0,-moveSpeed*Time.deltaTime,0);
+            }
+        }else if(Input.GetKey(KeyCode.Z))
+        {
+            if (!special)
+            {
+                special = true;
+                anim.SetBool("special",true);
+                specialBody.gravityScale = 0; 
+            }
+           
         }
         else
         {
@@ -128,20 +157,37 @@ public class Player : MonoBehaviour
             score++;
             scoreTime = 0f;
             scoreText.text = "地下" + score.ToString() + '層';
+
+            if (special)
+            {
+                specialTime++;
+                specialTimeOut();
+            }
         }
     }
 
     void Die()
     {
-        deathSound.Play();
-        Time.timeScale = 0;
-        replyButton.SetActive(true);
+        // deathSound.Play();
+        // Time.timeScale = 0;
+        // replyButton.SetActive(true);
     }
 
     public void Replay()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("SampleScene");
+    }
+
+    void specialTimeOut()
+    {
+        if (specialTime >= 5)
+        {
+            special = false;
+            specialTime = 0;
+            anim.SetBool("special",false);
+            specialBody.gravityScale = 1;
+        }
     }
     
      
